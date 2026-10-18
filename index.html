@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Naturalist Animal Compendium (Bedrock 26.1.x)</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #eef2ec;
+  --panel: #f8faf6;
+  --ink: #1f2a22;
+  --muted: #5a6a5e;
+  --rule: #c9d4c8;
+  --accent: #3b6a46;
+  --accent-ink: #ffffff;
+  --yes-bg: #d8ebd9;
+  --yes-ink: #1f4a2a;
+  --no-bg: #e6e9e4;
+  --no-ink: #6b776d;
+  --focus: #2f5bb5;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #141b16;
+    --panel: #1c2520;
+    --ink: #e4ebe2;
+    --muted: #9eb0a2;
+    --rule: #33423a;
+    --accent: #8fc49a;
+    --accent-ink: #11201a;
+    --yes-bg: #27432f;
+    --yes-ink: #bfe4c7;
+    --no-bg: #2a332d;
+    --no-ink: #8a9a8e;
+    --focus: #9db9ff;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 20px 80px; }
+
+header { padding: 40px 0 16px; }
+h1 {
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  font-weight: 400;
+  font-size: clamp(32px, 6vw, 52px);
+  line-height: 1.05;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+h1 .count { color: var(--accent); }
+.sub { color: var(--muted); margin: 0; max-width: 60ch; }
+.sub a { color: inherit; }
+
+.controls {
+  position: sticky; top: 0; z-index: 2;
+  background: var(--bg);
+  padding: 12px 0 10px;
+  border-bottom: 1px solid var(--rule);
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+}
+.controls input[type=search], .controls select {
+  font: inherit; color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--rule); border-radius: 6px;
+  padding: 8px 10px;
+}
+.controls input[type=search] { flex: 1 1 220px; min-width: 160px; }
+.controls select { flex: 0 1 200px; }
+.chip {
+  font: inherit; font-size: 14px;
+  border: 1px solid var(--rule); border-radius: 999px;
+  background: var(--panel); color: var(--ink);
+  padding: 6px 12px; cursor: pointer;
+}
+.chip[aria-pressed=true] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.chip:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, button:focus-visible {
+  outline: 2px solid var(--focus); outline-offset: 2px;
+}
+.toolbar { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 10px 0 4px; color: var(--muted); font-size: 14px; }
+.toolbar button { font: inherit; font-size: 14px; background: none; border: none; color: var(--accent); cursor: pointer; padding: 0; text-decoration: underline; }
+
+.list { list-style: none; margin: 0; padding: 0; }
+.entry { border-bottom: 1px solid var(--rule); }
+.entry summary {
+  list-style: none; cursor: pointer;
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: baseline;
+  padding: 14px 0;
+}
+.entry summary::-webkit-details-marker { display: none; }
+.entry .name {
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  font-size: 21px; line-height: 1.2;
+}
+.entry .name::before {
+  content: "+"; display: inline-block; width: 1.1em; color: var(--muted);
+}
+.entry[open] .name::before { content: "-"; }
+.entry .biomes { grid-column: 1; color: var(--muted); font-size: 14px; padding-left: 1.1em; }
+.marks { grid-row: 1 / span 2; display: flex; gap: 6px; align-self: center; }
+.mark { font-size: 12px; border-radius: 4px; padding: 2px 7px; white-space: nowrap; }
+.mark.yes { background: var(--yes-bg); color: var(--yes-ink); }
+.mark.no { background: var(--no-bg); color: var(--no-ink); text-decoration: line-through; }
+
+.detail { padding: 0 0 18px 1.1em; }
+dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; }
+dt { color: var(--muted); font-size: 14px; }
+dd { margin: 0; }
+dd.empty { color: var(--muted); }
+.items { display: flex; flex-wrap: wrap; gap: 4px; }
+.item { background: var(--panel); border: 1px solid var(--rule); border-radius: 4px; padding: 1px 7px; font-size: 14px; }
+
+.none { padding: 40px 0; color: var(--muted); }
+footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
+footer a { color: inherit; }
+
+@media (max-width: 560px) {
+  .entry summary { grid-template-columns: 1fr; }
+  .marks { grid-row: auto; padding-left: 1.1em; }
+  dl { grid-template-columns: 1fr; gap: 2px; }
+  dt { margin-top: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .chip { transition: background 120ms; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1><span class="count" id="count">102</span> animals in Naturalist</h1>
+  <p class="sub">Spawn biomes, taming, breeding, healing and growth for every animal in the Bedrock add-on, version 26.1.x. Taken from the Starfish Studios <a href="https://starfishstudios.notion.site/Naturalist-Add-On-Wiki-1a7a9a61c3f1800c8e32e893d6e7f430">Master Animals Table</a>. Tap a name to expand it.</p>
+</header>
+
+<div class="controls" role="search">
+  <input type="search" id="q" placeholder="Search animals, biomes or items" aria-label="Search">
+  <select id="biome" aria-label="Filter by biome"><option value="">Any biome</option></select>
+  <button class="chip" data-col="2" aria-pressed="false">Tameable</button>
+  <button class="chip" data-col="4" aria-pressed="false">Baby tameable</button>
+  <button class="chip" data-col="6" aria-pressed="false">Breedable</button>
+</div>
+<div class="toolbar">
+  <span id="status"></span>
+  <span><button id="expand">Expand all</button> / <button id="collapse">Collapse all</button></span>
+</div>
+
+<ul class="list" id="list"></ul>
+<p class="none" id="none" hidden>No animals match. Clear a filter or change the search.</p>
+
+<footer>Data: Starfish Studios Naturalist Add-On Wiki, Master Animals Table, exported 2026-10-18. Health numbers are hit points; numbers in parentheses are hit points restored per item. Ageable seconds is the time a baby takes to grow up without feeding.</footer>
+</div>
+
+<script>
+const COLS = ["Name","Spawn Biomes","Tameable","Tame Items","Baby Tameable","Baby Tame Items","Breedable","Breed Items","Health","Healable","Ageable (Seconds)","Ageable Items"];
+const DATA = [["Alligator", "Swamp; Mangrove Swamp", "No", "", "No", "", "Yes", "Raw Beef; Cooked Beef; Raw Porkchop; Cooked Porkchop; Raw Chicken; Cooked Chicken; Raw Rabbit; Cooked Rabbit; Raw Mutton; Cooked Mutton; Raw Cod; Cooked Cod; Raw Salmon; Cooked Salmon; Tropical Fish; Raw Venison; Cooked Venison; Raw Catfish; Cooked Catfish; Raw Bass; Cooked Bass; Raw Cavefish; Cooked Cavefish", "40", "Raw Beef (2); Cooked Beef (4); Raw Porkchop (2); Cooked Porkchop (4); Raw Chicken (2); Cooked Chicken (4); Raw Rabbit (2); Cooked Rabbit (4); Raw Mutton (2); Cooked Mutton (4); Raw Cod (2); Cooked Cod (4); Raw Salmon (2); Cooked Salmon (4); Tropical Fish (1); Raw Venison (2); Cooked Venison (4); Raw Catfish (2); Cooked Catfish (4); Raw Bass (2); Cooked Bass (4); Raw Cavefish (2); Cooked Cavefish (4)", "1200", "Raw Beef; Cooked Beef; Raw Porkchop; Cooked Porkchop; Raw Chicken; Cooked Chicken; Raw Rabbit; Cooked Rabbit; Raw Mutton; Cooked Mutton; Raw Cod; Cooked Cod; Raw Salmon; Cooked Salmon; Tropical Fish; Raw Venison; Cooked Venison; Raw Catfish; Cooked Catfish; Raw Bass; Cooked Bass; Raw Cavefish; Cooked Cavefish"], ["Anglerfish", "Ocean", "No", "", "No", "", "No", "", "8", "Raw Crab Meat (2)", "", ""], ["Ant / Ant Hills", "Savanna; Jungle", "No", "", "No", "", "No", "", "5", "Sugar (1)", "", ""], ["Anteater", "Savanna; Jungle", "Yes", "Ant; Termite", "No", "", "Yes", "Ant; Termite", "20", "Ant (2); Termite (2)", "1200", "Ant; Termite; Queen Ant"], ["Badger", "Forest; Hills; Taiga; Lush Cave", "No", "", "No", "", "Yes", "Sweet Berries", "6", "Sweet Berries (1)", "1200", "Sweet Berries"], ["Bass", "Swamp; Mangrove Swamp; River", "No", "", "No", "", "No", "", "3", "Raw Reptile Tail (1)", "", ""], ["Beaver", "River", "Yes", "Stick", "No", "", "Yes", "Stick", "18", "Stick (2)", "1200", "Stick"], ["Beetle", "Plains; Jungle; Bamboo Jungle; Lush Cave; Dripstone Cave", "No", "", "No", "", "No", "", "5", "Oak Leaves (1); Spruce Leaves (1); Birch Leaves (1); Jungle Leaves (1); Acacia Leaves (1); Dark Oak Leaves (1); Mangrove Leaves (1); Cherry Leaves (1); Pale Oak Leaves (1); Azalea Leaves (1); Azalea Leaves Flowered (1)", "", ""], ["Black Bear", "Forest; Flower Forest; Taiga; Mega Taiga; Grove", "No", "", "Yes", "Sweet Berries", "Yes", "Sweet Berries", "30", "Raw Salmon (2); Cooked Salmon (4)", "1200", "Sweet Berries"], ["Blobfish", "Deep Ocean; Deep Cold Ocean; Deep Frozen Ocean", "No", "", "No", "", "No", "", "8", "Raw Crab Meat (2)", "", ""], ["Bluejay", "Extreme Hills; Frozen Peaks; Ice Plains; Snowy Slopes; Taiga", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "No", "", "Yes", "Beetroot Seeds; Melon Seeds; Pumpkin Seeds; Torchflower Seeds; Wheat Seeds; Pitcher Pod", "6", "Wheat Seeds (2); Pumpkin Seeds (2); Melon Seeds (2); Beetroot Seeds (2); Torchflower Seeds (2); Pitcher Pod (2); Cookie (0) - Fatal Poison", "", ""], ["Boar", "Plains; Forest", "No", "", "No", "", "Yes", "Carrot; Beetroot; Potato", "14", "Carrot (2); Potato (2); Beetroot (2)", "1200", "Carrot; Beetroot; Potato"], ["Budgie", "Flower Forest; Jungle", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "No", "", "No", "", "6", "Wheat Seeds (2); Pumpkin Seeds (2); Melon Seeds (2); Beetroot Seeds (2); Torchflower Seeds (2); Pitcher Pod (2); Cookie (0) - Fatal Poison", "", ""], ["Butterfly", "Forest; Flower Forest; Swamp", "No", "", "No", "", "Yes", "Poppy; Dandelion; Sunflower; Lilac; Rose Bush; Peony; Torchflower; Open Eyeblossom; Pitcher Plant", "10", "Poppy (2); Dandelion (2); Sunflower (2); Lilac (2); Rose Bush (2); Peony (2); Open Eyeblossom (2); Pitcher Plant (2); Torchflower (2)", "", ""], ["Canary", "Extreme Hills; Mountains", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "No", "", "Yes", "Beetroot Seeds; Melon Seeds; Pumpkin Seeds; Torchflower Seeds; Wheat Seeds; Pitcher Pod", "6", "Wheat Seeds (2); Pumpkin Seeds (2); Melon Seeds (2); Beetroot Seeds (2); Torchflower Seeds (2); Pitcher Pod (2); Cookie (0) - Fatal Poison", "", ""], ["Capybara", "Jungle; Jungle Edge; Swamp; Mangrove Swamp", "Yes", "Melon Slice", "No", "", "Yes", "Melon Slice", "14", "Melon Slice (2)", "1200", "Melon Slice"], ["Cardinal", "Birch Forest; Desert; Flower Forest; Forest; Grove; Mangrove Swamp; Savanna; Swamp", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "No", "", "Yes", "Beetroot Seeds; Melon Seeds; Pumpkin Seeds; Torchflower Seeds; Wheat Seeds; Pitcher Pod", "6", "Wheat Seeds (2); Pumpkin Seeds (2); Melon Seeds (2); Beetroot Seeds (2); Torchflower Seeds (2); Pitcher Pod (2); Cookie (0) - Fatal Poison", "", ""], ["Caterpillar", "No Natural Spawn", "No", "", "No", "", "No", "", "", "", "", ""], ["Catfish", "Swamp; Mangrove Swamp", "No", "", "No", "", "No", "", "3", "Raw Bass (2); Raw Clam Meat (2)", "", ""], ["Cave Snake", "Bamboo Jungle; Dripstone Cave; Jungle; Lush Cave; Plains", "Yes", "Spider Eye; Raw Rabbit; Cooked Rabbit; Raw Morsel; Cooked Morsel", "No", "", "Yes", "Spider Eye; Raw Rabbit; Cooked Rabbit; Raw Morsel; Cooked Morsel", "10", "Spider Eye (2)", "", ""], ["Cavefish", "Lush Cave; Dripstone Cave", "No", "", "No", "", "No", "", "3", "Brown Mushroom (1); Red Mushroom (1)", "", ""], ["Clam", "Ocean", "No", "", "No", "", "No", "", "32", "Tube Coral (2); Brain Coral (2); Bubble Coral (2); Fire Coral (2); Horn Coral (2)", "", ""], ["Coral Snake", "Beach; Jungle; River", "Yes", "Spider Eye; Raw Rabbit; Cooked Rabbit; Raw Morsel; Cooked Morsel", "No", "", "Yes", "Spider Eye; Raw Rabbit; Cooked Rabbit; Raw Morsel; Cooked Morsel", "10", "Spider Eye (2)", "", ""], ["Coyote", "Desert; Hills; Mesa", "No", "", "Yes", "Bone", "Yes", "Raw Beef; Cooked Beef; Raw Porkchop; Cooked Porkchop; Raw Chicken; Cooked Chicken; Raw Rabbit; Cooked Rabbit; Raw Mutton; Cooked Mutton", "20", "Raw Beef (2); Cooked Beef (4); Raw Porkchop (2); Cooked Porkchop (4); Raw Chicken (2); Cooked Chicken (4); Raw Rabbit (2); Cooked Rabbit (4); Raw Mutton (2); Cooked Mutton (4)", "1200", "Bone"], ["Crab", "Beach; Ocean; Deep Frozen Ocean", "Yes", "Tropical Fish", "No", "", "Yes", "Tropical Fish", "6", "Tropical Fish (2)", "", ""], ["Crow", "Taiga; Extreme Hills; Ice Plains; Snowy Slopes; Frozen Peaks", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "No", "", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "6", "Wheat Seeds (2); Pumpkin Seeds (2); Melon Seeds (2); Beetroot Seeds (2); Torchflower Seeds (2); Pitcher Pod (2); Cookie (0) - Fatal Poison", "", ""], ["Deer", "Forest; Flower Forest; Birch Forest; Taiga; Cold Taiga; Cherry Groves", "No", "", "Yes", "Apple", "Yes", "Apple", "", "Apple (2)", "", ""], ["Desert Scorpion", "Desert; Mesa Plateau Stone", "No", "", "No", "", "No", "", "5", "Raw Reptile Tail (1)", "", ""], ["Dragonfly", "Swamp; Mangrove Swamp", "No", "", "No", "", "No", "", "6", "Beetle (2)", "", ""], ["Duck", "Plains; Birch Forest; Birch Forest Hills; Birch Forest Mutated; River", "Yes", "Raw Salmon; Cooked Salmon; Raw Cod; Cooked Cod; Tropical Fish; Raw Cavefish; Cooked Cavefish; Raw Catfish; Cooked Catfish; Raw Bass; Cooked Bass", "No", "", "Yes", "Raw Salmon; Cooked Salmon; Raw Cod; Cooked Cod; Tropical Fish; Raw Cavefish; Cooked Cavefish; Raw Catfish; Cooked Catfish; Raw Bass; Cooked Bass", "4", "Raw Salmon (2); Cooked Salmon (4); Raw Cod (2); Cooked Cod (4); Tropical Fish (1); Raw Cavefish (2); Cooked Cavefish (4); Raw Catfish (2); Cooked Catfish (4); Raw Bass (2); Cooked Bass (4)", "1200", "Raw Salmon; Cooked Salmon; Raw Cod; Cooked Cod; Tropical Fish; Raw Cavefish; Cooked Cavefish; Raw Catfish; Cooked Catfish; Raw Bass; Cooked Bass"], ["Eagle", "Taiga; Extreme Hills; Ice Plains; Stony Peaks; Frozen Peaks", "No", "", "Yes", "Raw Salmon; Cooked Salmon; Raw Cod; Cooked Cod; Tropical Fish; Raw Bass; Cooked Bass; Raw Catfish; Cooked Catfish; Raw Cavefish; Cooked Cavefish", "Yes", "Raw Salmon; Cooked Salmon; Raw Cod; Cooked Cod; Tropical Fish; Raw Bass; Cooked Bass; Raw Catfish; Cooked Catfish; Raw Cavefish; Cooked Cavefish", "15", "Raw Salmon (2); Cooked Salmon (4); Raw Cod (2); Cooked Cod (4); Tropical Fish (2); Raw Bass (2); Cooked Bass (4); Raw Catfish (2); Cooked Catfish (4); Raw Cavefish (2); Cooked Cavefish (4)", "1200", "Raw Salmon; Cooked Salmon; Raw Cod; Cooked Cod; Tropical Fish; Raw Bass; Cooked Bass; Raw Catfish; Cooked Catfish; Raw Cavefish; Cooked Cavefish"], ["Electric Eel", "Deep Ocean", "No", "", "No", "", "No", "", "8", "Raw Crab Meat (2)", "", ""], ["Elephant", "Savanna", "No", "", "Yes", "Melon Slice", "Yes", "Pumpkin", "50", "Melon Slice (2); Pumpkin (5)", "1200", "Melon Slice"], ["Fennec Fox", "Desert; Mesa", "Yes", "Sweet Berries; Glow Berries", "No", "", "Yes", "Sweet Berries; Glow Berries", "20", "Sweet Berries (2); Glow Berries (3)", "1200", "Sweet Berries; Glow Berries"], ["Finch", "Forest; Savanna", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "No", "", "Yes", "Beetroot Seeds; Melon Seeds; Pumpkin Seeds; Torchflower Seeds; Wheat Seeds; Pitcher Pod", "6", "Wheat Seeds (2); Pumpkin Seeds (2); Melon Seeds (2); Beetroot Seeds (2); Torchflower Seeds (2); Pitcher Pod (2); Cookie (0) - Fatal Poison", "", ""], ["Firefly", "Forest; Flower Forest; Grove; Mangrove Swamp; Mooshroom Island; Swamp", "No", "", "No", "", "No", "", "6", "Rose Bush (2); Peony (2)", "", ""], ["Flamingo", "Beach; Swamp; Mangrove Swamp", "No", "", "Yes", "Raw Crab Meat; Cooked Crab Meat", "Yes", "Raw Crab Meat; Cooked Crab Meat", "4", "Raw Crab Meat (2); Cooked Crab Meat (4)", "1200", "Raw Crab Meat; Cooked Crab Meat"], ["Flying Fish", "Ocean", "No", "", "No", "", "No", "", "15", "Raw Crab Meat (2); Cooked Crab Meat (4)", "", ""], ["Giant Isopod", "Ocean", "No", "", "No", "", "Yes", "Raw Cod; Cooked Cod; Raw Salmon; Cooked Salmon; Tropical Fish; Raw Catfish; Cooked Catfish; Raw Bass; Cooked Bass; Raw Anglerfish; Cooked Anglerfish", "10", "Raw Cod (2); Cooked Cod (4); Raw Salmon (2); Cooked Salmon (4); Tropical Fish (2); Raw Catfish (2); Cooked Catfish (4); Raw Bass (2); Cooked Bass (4); Raw Anglerfish (2); Cooked Anglerfish (4)", "1200", "Raw Cod; Cooked Cod; Raw Salmon; Cooked Salmon; Tropical Fish; Raw Catfish; Cooked Catfish; Raw Bass; Cooked Bass; Raw Anglerfish; Cooked Anglerfish"], ["Giant Salamander", "Lush Cave", "No", "", "No", "", "Yes", "Raw Cod; Cooked Cod; Raw Salmon; Cooked Salmon; Tropical Fish; Raw Catfish; Cooked Catfish; Raw Bass; Cooked Bass; Raw Cavefish; Cooked Cavefish", "8", "Raw Cod (2); Cooked Cod (4); Raw Salmon (2); Cooked Salmon (4); Tropical Fish (2); Raw Catfish (2); Cooked Catfish (4); Raw Bass (2); Cooked Bass (4); Raw Cavefish (2); Cooked Cavefish (4)", "1200", "Raw Cod; Cooked Cod; Raw Salmon; Cooked Salmon; Tropical Fish; Raw Catfish; Cooked Catfish; Raw Bass; Cooked Bass; Raw Cavefish; Cooked Cavefish"], ["Giraffe", "Savanna", "No", "", "Yes", "Apple", "Yes", "Hay Block", "35", "Apple (2); Hay Block (20) - Adult", "1200", "Apple"], ["Goose", "Birch Forest; Birch Forest Hills; Birch Forest Mutated; Plains; River", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "No", "", "Yes", "Wheat Seeds; Beetroot Seeds; Melon Seeds; Pumpkin Seeds; Torchflower Seeds; Pitcher Pod", "9", "Wheat Seeds (2); Beetroot Seeds (2); Melon Seeds (2); Pumpkin Seeds (2); Pitcher Pod (2); Torchflower Seeds (2)", "1200", "Wheat Seeds; Beetroot Seeds; Melon Seeds; Pumpkin Seeds; Torchflower Seeds; Pitcher Pod"], ["Gorilla", "Jungle", "No", "", "No", "", "Yes", "Melon Block; Pumpkin", "30", "Melon Block (5); Pumpkin (5)", "1200", "Pumpkin; Melon Slice"], ["Great White Shark", "Warm Ocean; Lukewarm Ocean", "No", "", "No", "", "No", "", "40", "Raw Cod (2); Cooked Cod (4); Raw Salmon (2); Cooked Salmon (4); Tropical Fish (2); Raw Catfish (2); Cooked Catfish (4); Raw Bass (2); Cooked Bass (4); Raw Cavefish (2); Cooked Cavefish (4)", "", ""], ["Grizzly Bear", "Forest; Flower Forest; Grove; Taiga", "No", "", "Yes", "Honeycomb", "Yes", "Honeycomb", "30", "Raw Salmon (2); Cooked Salmon (4)", "1200", "Honeycomb"], ["Hammer Head Shark", "Warm Ocean; Lukewarm Ocean", "No", "", "No", "", "No", "", "40", "Raw Cod (2); Cooked Cod (4); Raw Salmon (2); Cooked Salmon (4); Tropical Fish (2); Raw Catfish (2); Cooked Catfish (4); Raw Bass (2); Cooked Bass (4); Raw Cavefish (2); Cooked Cavefish (4)", "", ""], ["Hamster", "Plains; Forest; Birch Forest", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "No", "", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "20", "Wheat Seeds (2); Pumpkin Seeds (2); Melon Seeds (2); Beetroot Seeds (2); Torchflower Seeds (2); Pitcher Pod (2)", "1200", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod"], ["Hedgehog", "Forest; Flower Forest; Meadow; Plains; Taiga", "Yes", "Sweet Berries; Glow Berries", "No", "", "Yes", "Sweet Berries; Glow Berries", "18", "Sweet Berries (2); Glow Berries (2)", "1200", "Sweet Berries; Glow Berries"], ["Hippo", "Savanna", "No", "", "Yes", "Melon Slice", "Yes", "Melon Block", "40", "Melon Slice (2)", "1200", "Melon Slice"], ["Hyena", "Mesa; Savanna", "Yes", "Bone", "No", "", "Yes", "Rotten Flesh", "22", "Bone (2)", "1200", "Rotten Flesh; Bone"], ["Iguana", "Beach; Jungle; Lush Cave; Mesa; Savanna; Swamp", "Yes", "Melon Slice", "No", "", "Yes", "Melon Slice", "8", "Melon Slice (2)", "1200", "Melon Slice"], ["Jellyfish & Small Jellyfish", "Ocean; Warm Ocean; Lukewarm Ocean", "No", "", "No", "", "No", "", "10", "Raw Crab Meat (2); Cooked Crab Meat (4)", "", ""], ["Jungle Scorpion", "Jungle", "No", "", "No", "", "No", "", "8", "Raw Reptile Tail (1)", "", ""], ["Kakapo", "Dark Oak Forest; Mega Taiga; Lush Cave", "Yes", "Glow Berries", "No", "", "No", "", "10", "Spore Blossom (2)", "", ""], ["Kangaroo", "Savanna", "No", "", "Yes", "Wheat", "Yes", "Wheat", "12", "Wheat (2)", "1200", "Wheat"], ["Kiwi", "Jungle", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "No", "", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "15", "Wheat Seeds (2); Pumpkin Seeds (2); Melon Seeds (2); Beetroot Seeds (2); Torchflower Seeds (2); Pitcher Pod (2); Cookie (0) - Fatal Poison", "1200", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod"], ["Komodo Dragon", "Desert; Mesa; Savanna", "No", "", "No", "", "Yes", "Raw Beef; Raw Porkchop; Raw Chicken; Raw Rabbit; Raw Mutton; Raw Morsel; Raw Duck; Raw Goose; Raw Drumstick; Raw Venison; Raw Moose Meat; Raw Mammoth Meat; Raw Bushmeat", "32", "Raw Beef (2); Raw Porkchop (2); Raw Chicken (2); Raw Rabbit (2); Raw Mutton (2); Raw Duck (2); Raw Goose (2); Raw Mammoth Meat (2); Raw Moose Meat (2); Raw Drumstick (2); Raw Venison (2); Raw Morsel (2); Raw Bushmeat (2)", "1200", "Raw Beef; Raw Porkchop; Raw Chicken; Raw Rabbit; Raw Mutton; Raw Morsel; Raw Duck; Raw Goose; Raw Drumstick; Raw Venison; Raw Moose Meat; Raw Mammoth Meat; Raw Bushmeat"], ["Lion", "Savanna", "No", "", "Yes", "Raw Chicken; Cooked Chicken; Raw Beef; Cooked Beef; Raw Mutton; Cooked Mutton; Raw Porkchop; Cooked Porkchop; Raw Rabbit; Cooked Rabbit; Raw Moose Meat; Cooked Moose Meat; Raw Mammoth Meat; Cooked Mammoth Meat; Raw Goose; Cooked Goose; Raw Drumstick; Cooked Drumstick; Raw Venison; Cooked Venison; Raw Morsel; Cooked Morsel; Raw Bushmeat; Cooked Bushmeat; Raw Duck; Cooked Duck", "Yes", "Raw Chicken; Cooked Chicken; Raw Beef; Cooked Beef; Raw Mutton; Cooked Mutton; Raw Porkchop; Cooked Porkchop; Raw Rabbit; Cooked Rabbit; Raw Moose Meat; Cooked Moose Meat; Raw Mammoth Meat; Cooked Mammoth Meat; Raw Goose; Cooked Goose; Raw Drumstick; Cooked Drumstick; Raw Venison; Cooked Venison; Raw Morsel; Cooked Morsel; Raw Bushmeat; Cooked Bushmeat; Raw Duck; Cooked Duck", "24", "Raw Beef (2); Cooked Beef (4); Raw Porkchop (2); Cooked Porkchop (4); Raw Chicken (2); Cooked Chicken (4); Raw Rabbit (2); Cooked Rabbit (4); Raw Mutton (2); Cooked Mutton (4); Raw Duck (2); Cooked Duck (4); Raw Goose (2); Cooked Goose (4); Raw Mammoth Meat (2); Cooked Mammoth Meat (4); Raw Moose Meat (2); Cooked Moose Meat (4); Raw Drumstick (2); Cooked Drumstick (4); Raw Venison (2); Cooked Venison (4); Raw Morsel (2); Cooked Morsel (4); Raw Bushmeat (2); Cooked Bushmeat (4)", "1200", "Raw Chicken; Cooked Chicken; Raw Beef; Cooked Beef; Raw Mutton; Cooked Mutton; Raw Porkchop; Cooked Porkchop; Raw Rabbit; Cooked Rabbit; Raw Bushmeat; Cooked Bushmeat; Raw Duck; Cooked Duck; Raw Goose; Cooked Goose; Raw Mammoth Meat; Cooked Mammoth Meat; Raw Moose Meat; Cooked Moose Meat; Raw Drumstick; Cooked Drumstick; Raw Venison; Cooked Venison"], ["Lizard", "Forest; Jungle; Mesa; Swamp", "Yes", "Spider Eye", "No", "", "Yes", "Spider Eye", "8", "Spider Eye (2)", "1200", "Spider Eye"], ["Mammoth", "Frozen Peaks; Ice Plains; Snowy Slopes", "No", "", "Yes", "Melon Slice", "Yes", "Pumpkin", "50", "Melon Slice (2)", "1200", "Melon Slice"], ["Mole", "Forest; Plains", "No", "", "No", "", "Yes", "Spider Eye", "12", "Spider Eye (2)", "1200", "Spider Eye"], ["Monkey", "Jungle", "Yes", "Apple", "No", "", "Yes", "Apple", "15", "Apple (2)", "1200", "Apple"], ["Moose", "Cold Taiga; Forest; Mega Taiga; Mega Taiga Hills; Mountains; Taiga", "No", "", "Yes", "Apple", "Yes", "Apple", "40", "Apple (2)", "1200", "Apple"], ["Moray", "Ocean", "No", "", "No", "", "No", "", "8", "Raw Crab Meat (2)", "", ""], ["Octopus", "Ocean", "No", "", "No", "", "No", "", "15", "Raw Crab Meat (2)", "", ""], ["Orca", "Ocean", "No", "", "No", "", "No", "", "40", "Raw Salmon (2)", "", ""], ["Ostrich", "Savanna", "No", "", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "25", "Wheat Seeds (2); Beetroot Seeds (2); Melon Seeds (2); Pumpkin Seeds (2); Pitcher Pod (2); Torchflower Seeds (2)", "1200", "Wheat Seeds; Beetroot Seeds; Melon Seeds; Pumpkin Seeds; Pitcher Pod; Torchflower Seeds"], ["Otter", "River; Swamp; Mangrove Swamp", "Yes", "Raw Crab Meat; Cooked Crab Meat; Raw Clam Meat; Cooked Clam Meat", "No", "", "Yes", "Raw Crab Meat; Cooked Crab Meat; Raw Clam Meat; Cooked Clam Meat", "15", "Raw Crab Meat (2); Cooked Crab Meat (4); Raw Clam Meat (2); Cooked Clam Meat (4)", "1200", "Raw Crab Meat; Cooked Crab Meat; Raw Clam Meat; Cooked Clam Meat"], ["Owl", "Forest; Snowy Slopes; Taiga; Taiga Hills", "Yes", "Raw Rabbit; Cooked Rabbit; Raw Frog Leg; Cooked Frog Leg", "No", "", "No", "", "12", "Raw Rabbit (2); Cooked Rabbit (4); Raw Frog Leg (2); Cooked Frog Leg (4)", "", ""], ["Peafowl", "Flower Forest; Jungle Edge", "Yes", "Crouch", "No", "", "No", "", "18", "Wheat Seeds (2); Pumpkin Seeds (2); Melon Seeds (2); Beetroot Seeds (2); Torchflower Seeds (2); Pitcher Pod (2)", "", ""], ["Penguin", "Frozen", "No", "", "Yes", "Raw Cod; Cooked Cod; Raw Salmon; Cooked Salmon; Tropical Fish; Raw Bass; Cooked Bass; Raw Catfish; Cooked Catfish; Raw Cavefish; Cooked Cavefish", "Yes", "Cod; Salmon; Tropical Fish; Catfish; Bass", "18", "Raw Salmon (2); Cooked Salmon (4); Raw Cod (2); Cooked Cod (4); Tropical Fish (2); Raw Bass (2); Cooked Bass (4); Raw Catfish (2); Cooked Catfish (4); Raw Cavefish (2); Cooked Cavefish (4)", "1200", "Raw Salmon; Cooked Salmon; Raw Cod; Cooked Cod; Tropical Fish; Raw Bass; Cooked Bass; Raw Catfish; Cooked Catfish; Raw Cavefish; Cooked Cavefish"], ["Piranha", "Jungle; Lush Cave", "No", "", "No", "", "No", "", "6", "Rotten Flesh (2)", "", ""], ["Platypus", "River; Swamp; Mangrove Swamp", "Yes", "Raw Cod; Cooked Cod; Raw Crab Meat; Cooked Crab Meat", "No", "", "Yes", "Raw Cod; Cooked Cod; Raw Crab Meat; Cooked Crab Meat", "12", "Raw Cod (2); Cooked Cod (4); Raw Crab Meat (2); Cooked Crab Meat (4)", "1200", "Raw Cod; Cooked Cod; Raw Crab Meat; Cooked Crab Meat"], ["Raccoon", "Forest; Flower Forest; Mega Taiga; Mountains; Taiga", "No", "", "No", "", "Yes", "Sweet Berries; Glow Berries", "18", "Sweet Berries (2); Glow Berries (2)", "1200", "Sweet Berries; Glow Berries"], ["Rat", "Birch Forest; Caves; Forest; Plains", "Yes", "Bread", "No", "", "Yes", "Bread", "5", "Bread (2)", "1200", "Bread"], ["Rattlesnake", "Bamboo Jungle; Dripstone Cave; Jungle; Lush Cave; Plains", "Yes", "Spider Eye; Raw Rabbit; Cooked Rabbit; Raw Morsel; Cooked Morsel", "No", "", "Yes", "Spider Eye; Raw Rabbit; Cooked Rabbit; Raw Morsel; Cooked Morsel", "10", "Spider Eye (2); Raw Rabbit (2); Cooked Rabbit (4); Raw Morsel (2); Cooked Morsel (4)", "", ""], ["Raven", "Taiga; Desert; Stone Beach; Hills", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "No", "", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "6", "Wheat Seeds (2); Pumpkin Seeds (2); Melon Seeds (2); Beetroot Seeds (2); Torchflower Seeds (2); Pitcher Pod (2); Cookie (0) - Fatal Poison", "", ""], ["Red Panda", "Bamboo Jungle; Bamboo Jungle Hills; Jungle", "Yes", "Bamboo", "No", "", "Yes", "Bamboo", "12", "Bamboo (2)", "1200", "Bamboo"], ["Rhino", "Savanna", "No", "", "No", "", "Yes", "Wheat", "40", "Wheat (2)", "1200", "Wheat"], ["Robin", "Birch Forest; Flower Forest; Forest; Mega Taiga; Mega Taiga Hills; Taiga Hills; Mountains", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds", "No", "", "Yes", "Beetroot Seeds; Melon Seeds; Pumpkin Seeds; Torchflower Seeds; Wheat Seeds", "6", "Wheat Seeds (2); Pumpkin Seeds (2); Melon Seeds (2); Beetroot Seeds (2); Torchflower Seeds (2); Pitcher Pod (2); Cookie (0) - Fatal Poison", "", ""], ["Seals", "Cold Beach; Frozen River; Frozen Ocean", "No", "", "No", "", "Yes", "Raw Cod; Cooked Cod; Raw Salmon; Cooked Salmon; Tropical Fish; Raw Bass; Cooked Bass; Raw Catfish; Cooked Catfish", "18", "Raw Cod (2); Cooked Cod (4); Raw Salmon (2); Cooked Salmon (4); Tropical Fish (2); Raw Bass (2); Cooked Bass (4); Raw Catfish (2); Cooked Catfish (4)", "1200", "Raw Cod; Cooked Cod; Raw Salmon; Cooked Salmon; Tropical Fish; Raw Bass; Cooked Bass; Raw Catfish; Cooked Catfish"], ["Secretary Bird", "Savanna", "No", "", "No", "", "Yes", "Reptile Tail; Cooked Reptile Tail", "12", "Raw Reptile Tail (2); Cooked Reptile Tail (4)", "", ""], ["Skunk", "Forest", "Yes", "Sweet Berries; Glow Berries", "No", "", "Yes", "Sweet Berries; Glow Berries", "14", "Sweet Berries (2); Glow Berries (2)", "1200", "Sweet Berries; Glow Berries"], ["Sloth", "Jungle", "Yes", "Jungle Saplings", "No", "", "Yes", "Jungle Saplings", "12", "Jungle Sapling (2)", "1200", "Jungle Sapling"], ["Slug", "Lush Cave; Dripstone Cave", "No", "", "No", "", "No", "", "2", "Brown Mushroom (1); Red Mushroom (1)", "", ""], ["Snail", "Forest; Mangrove Swamp; Mooshroom Island; Plains; Savanna; Swamp", "No", "", "No", "", "Yes", "Beetroot; Carrot; Apple", "2", "Beetroot (1); Carrot (1); Apple (1)", "1200", "Beetroot; Carrot; Apple"], ["Snake", "Forest; Flower Forest; Plains; Swamp; Mangrove Swamp", "Yes", "Spider Eye; Raw Rabbit; Cooked Rabbit; Raw Morsel; Cooked Morsel", "No", "", "Yes", "Spider Eye; Raw Rabbit; Raw Morsel; Cooked Morsel", "10", "Spider Eye (2)", "", ""], ["Sparrow", "Cherry Groves; Plains", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "No", "", "Yes", "Beetroot Seeds; Melon Seeds; Pumpkin Seeds; Torchflower Seeds; Wheat Seeds; Pitcher Pod", "6", "Wheat Seeds (2); Pumpkin Seeds (2); Melon Seeds (2); Beetroot Seeds (2); Torchflower Seeds (2); Pitcher Pod (2); Cookie (0) - Fatal Poison", "", ""], ["Spotted Moray", "Warm Ocean", "No", "", "No", "", "No", "", "8", "Raw Crab Meat (2)", "", ""], ["Squirrel", "Birch Forest; Cherry Groves; Flower Forest; Forest", "No", "", "No", "", "Yes", "Beetroot Seeds; Melon Seeds; Pumpkin Seeds; Torchflower Seeds; Wheat Seeds; Pitcher Pod", "", "Wheat Seeds (2); Pumpkin Seeds (2); Melon Seeds (2); Beetroot Seeds (2); Torchflower Seeds (2); Pitcher Pod (2)", "1200", "Beetroot Seeds; Melon Seeds; Pumpkin Seeds; Torchflower Seeds; Wheat Seeds; Pitcher Pod"], ["Starfish", "Ocean", "No", "", "No", "", "No", "", "4", "Raw Crab Meat (2); Raw Clam Meat (2)", "", ""], ["Stingray", "Warm Ocean; Lukewarm Ocean", "No", "", "No", "", "Yes", "Raw Crab Meat; Cooked Crab Meat", "8", "Raw Crab Meat (2)", "", ""], ["Termite", "Desert; Desert Hills", "No", "", "No", "", "No", "", "5", "Sugar Cane (1)", "", ""], ["Tiger", "Cherry Groves; Desert; Jungle; Mangrove Swamp; Mountains", "No", "", "No", "", "Yes", "Raw Chicken; Cooked Chicken; Raw Beef; Cooked Beef; Raw Mutton; Cooked Mutton; Raw Porkchop; Cooked Porkchop; Raw Rabbit; Cooked Rabbit; Raw Moose Meat; Cooked Moose Meat; Raw Mammoth Meat; Cooked Mammoth Meat; Raw Goose; Cooked Goose; Raw Drumstick; Cooked Drumstick; Raw Venison; Cooked Venison; Raw Morsel; Cooked Morsel; Raw Bushmeat; Cooked Bushmeat; Raw Duck; Cooked Duck", "24", "Raw Beef (2); Cooked Beef (4); Raw Porkchop (2); Cooked Porkchop (4); Raw Chicken (2); Cooked Chicken (4); Raw Rabbit (2); Cooked Rabbit (4); Raw Mutton (2); Cooked Mutton (4); Raw Duck (2); Cooked Duck (4); Raw Goose (2); Cooked Goose (4); Raw Mammoth Meat (2); Cooked Mammoth Meat (4); Raw Moose Meat (2); Cooked Moose Meat (4); Raw Drumstick (2); Cooked Drumstick (4); Raw Venison (2); Cooked Venison (4); Raw Morsel (2); Cooked Morsel (4); Raw Bushmeat (2); Cooked Bushmeat (4)", "1200", "Raw Chicken; Cooked Chicken; Raw Beef; Cooked Beef; Raw Mutton; Cooked Mutton; Raw Porkchop; Cooked Porkchop; Raw Rabbit; Cooked Rabbit; Raw Moose Meat; Cooked Moose Meat; Raw Mammoth Meat; Cooked Mammoth Meat; Raw Goose; Cooked Goose; Raw Drumstick; Cooked Drumstick; Raw Venison; Cooked Venison; Raw Morsel; Cooked Morsel; Raw Bushmeat; Cooked Bushmeat; Raw Duck; Cooked Duck"], ["Tortoise", "Desert; Jungle; Mangrove Swamp; Swamp", "Yes", "Sugar Cane", "No", "", "Yes", "Sugar Cane", "30", "Sugar Cane (2)", "1200", "Sugar Cane"], ["Toucan", "Jungle", "Yes", "Wheat Seeds; Pumpkin Seeds; Melon Seeds; Beetroot Seeds; Torchflower Seeds; Pitcher Pod", "No", "", "No", "", "12", "Wheat Seeds (2); Pumpkin Seeds (2); Melon Seeds (2); Beetroot Seeds (2); Torchflower Seeds (2); Pitcher Pod (2); Cookie (0) - Fatal Poison", "", ""], ["Tree Frog", "Bamboo Jungle; Dripstone Cave; Jungle; Lush Cave; Plains", "No", "", "No", "", "No", "", "10", "Beetle (2)", "", ""], ["Turkey", "Forest; Flower Forest; Grove; Mega Taiga; Taiga", "No", "", "No", "", "Yes", "Wheat Seeds; Beetroot Seeds; Melon Seeds; Pumpkin Seeds; Torchflower Seeds; Pitcher Pod", "4", "Wheat Seeds (2); Pumpkin Seeds (2); Melon Seeds (2); Beetroot Seeds (2); Torchflower Seeds (2); Pitcher Pod (2)", "1200", "Wheat Seeds; Beetroot Seeds; Melon Seeds; Pumpkin Seeds; Torchflower Seeds; Pitcher Pod"], ["Vulture", "Desert; Mesa; Savanna", "No", "", "Yes", "Rotten Flesh", "No", "", "10", "Rotten Flesh (2)", "", ""], ["Walrus", "Frozen", "No", "", "No", "", "No", "", "40", "Raw Crab Meat (2); Cooked Crab Meat (4); Raw Clam Meat (2); Cooked Clam Meat (4)", "", ""], ["Whale", "Ocean", "No", "", "No", "", "No", "", "40", "Raw Crab Meat (2); Cooked Crab Meat (4); Raw Cod (2); Cooked Cod (4); Raw Salmon (2); Cooked Salmon (4)", "", ""], ["Zebra", "Savanna", "Yes", "Golden Apple; Golden Carrot", "No", "", "Yes", "Golden Carrot; Golden Apple; Enchanted Golden Apple", "15", "Wheat (2); Sugar (1); Hay Block (20); Apple (3); Golden Carrot (4); Golden Apple (10); Enchanted Golden Apple (10)", "1200", "Wheat; Sugar; Hay Block; Apple; Golden Carrot; Golden Apple; Enchanted Apple"]];
+
+const list = document.getElementById('list');
+const q = document.getElementById('q');
+const biomeSel = document.getElementById('biome');
+const chips = [...document.querySelectorAll('.chip')];
+const count = document.getElementById('count');
+const status = document.getElementById('status');
+const none = document.getElementById('none');
+
+const biomes = new Set();
+DATA.forEach(r => r[1].split(';').map(s => s.trim()).filter(Boolean).forEach(b => biomes.add(b)));
+[...biomes].sort().forEach(b => { const o = document.createElement('option'); o.value = b; o.textContent = b; biomeSel.appendChild(o); });
+
+function esc(s) { return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function items(s) {
+  if (!s) return '<dd class="empty">None</dd>';
+  return '<dd><div class="items">' + s.split(';').map(x => x.trim()).filter(Boolean).map(x => '<span class="item">' + esc(x) + '</span>').join('') + '</div></dd>';
+}
+function mark(v, label) { return '<span class="mark ' + (v === 'Yes' ? 'yes' : 'no') + '">' + label + '</span>'; }
+
+function render(rows) {
+  list.innerHTML = rows.map(r => `
+<li><details class="entry">
+  <summary>
+    <span class="name">${esc(r[0])}</span>
+    <span class="marks">${mark(r[2],'Tame')}${mark(r[4],'Baby tame')}${mark(r[6],'Breed')}</span>
+    <span class="biomes">${esc(r[1]) || 'No natural spawn'}</span>
+  </summary>
+  <div class="detail"><dl>
+    <dt>Health</dt><dd>${esc(r[8]) || '<span class="empty">Unknown</span>'}</dd>
+    <dt>Tame with</dt>${r[2] === 'Yes' ? items(r[3]) : '<dd class="empty">Not tameable</dd>'}
+    <dt>Baby tame with</dt>${r[4] === 'Yes' ? items(r[5]) : '<dd class="empty">Not tameable as baby</dd>'}
+    <dt>Breed with</dt>${r[6] === 'Yes' ? items(r[7]) : '<dd class="empty">Not breedable</dd>'}
+    <dt>Heal with</dt>${items(r[9])}
+    <dt>Grows up in</dt><dd>${r[10] ? esc(r[10]) + ' s (' + Math.round(r[10]/60) + ' min)' : '<span class="empty">No baby stage</span>'}</dd>
+    <dt>Speed growth with</dt>${items(r[11])}
+  </dl></div>
+</details></li>`).join('');
+}
+
+function apply() {
+  const term = q.value.trim().toLowerCase();
+  const biome = biomeSel.value;
+  const need = chips.filter(c => c.getAttribute('aria-pressed') === 'true').map(c => +c.dataset.col);
+  const rows = DATA.filter(r => {
+    if (need.some(c => r[c] !== 'Yes')) return false;
+    if (biome && !r[1].split(';').map(s => s.trim()).includes(biome)) return false;
+    if (term && !r.join(' | ').toLowerCase().includes(term)) return false;
+    return true;
+  });
+  render(rows);
+  count.textContent = rows.length;
+  status.textContent = rows.length === DATA.length ? 'Showing all animals, A to Z' : 'Showing ' + rows.length + ' of ' + DATA.length;
+  none.hidden = rows.length > 0;
+}
+
+q.addEventListener('input', apply);
+biomeSel.addEventListener('change', apply);
+chips.forEach(c => c.addEventListener('click', () => { c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true'); apply(); }));
+document.getElementById('expand').addEventListener('click', () => document.querySelectorAll('.entry').forEach(d => d.open = true));
+document.getElementById('collapse').addEventListener('click', () => document.querySelectorAll('.entry').forEach(d => d.open = false));
+apply();
+</script>
+</body>
+</html>
